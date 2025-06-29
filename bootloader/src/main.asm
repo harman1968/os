@@ -17,12 +17,15 @@ main:
             mov si, msg
             call print_string
 
+        ; call disk loader
+            call disk_loader
+
     hang:
         jmp hang
 
 ; Files that are included
     %include "src/print_string.asm"
-
+    %include "src/disk_loader.asm"
 
 ; Messages
     msg       db "Stack and segment both are setup.", 13, 10, 0
