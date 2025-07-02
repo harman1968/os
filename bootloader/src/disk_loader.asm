@@ -26,7 +26,7 @@ disk_loader:
             disk_success:
                 mov si, succ_msg
                 call print_string
-                jmp 0x000:0x8000
+                jmp 0x8000:0000
 
     err_msg   db "Disk read failed!", 13, 10, 0
     succ_msg  db "Disk read successful.", 13, 10, 0

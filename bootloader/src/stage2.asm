@@ -1,8 +1,9 @@
 [bits 16]
-[org 0x8000]
+[org 0x0000]
 
-stage2_start:
+start:
     cli
+
     ; Enable A20 line (Fast A20 method)
         in al, 0x92
         or al, 0x02
@@ -20,9 +21,28 @@ stage2_start:
 
     %include "src/gdt.asm"
 
+    times 510 - ($ - $$) db 0
+
+; Include routines
+%include "src/print_string.asm"
+%include "src/gdt.asm"
+
+; ------- 32-bit Protected Mode Code -------
 [bits 32]
 start_protected_mode:
-    
-    
-hang32:
-    jmp hang32
+    ; Set data segment registers
+    mov ax, DATA_SEGMENT
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+
+    ; Set up stack
+    mov esp, 0x7C00
+
+    ; Write 'P' on screen (0x0F = white on black)
+    mov word [0xB8000], 0x0F50
+
+hang:
+    jmp hang

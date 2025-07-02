@@ -1,3 +1,4 @@
+[bits 32]
 gdt_start:
     null_descriptor:
         dd 0
@@ -42,3 +43,5 @@ gdt_descriptor:
 
 CODE_SEGMENT equ code_descriptor - gdt_start
 DATA_SEGMENT equ data_descriptor - gdt_start
+
+ret
