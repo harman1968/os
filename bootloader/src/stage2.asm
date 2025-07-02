@@ -5,21 +5,25 @@ start:
     cli
 
     ; Enable A20 line (Fast A20 method)
-        in al, 0x92
-        or al, 0x02
-        out 0x92, al
+    in al, 0x92
+    or al, 0x02
+    out 0x92, al
 
-    ; setup gdt
-        call gdt_start
-        lgdt [gdt_descriptor]
-    
-    ; change last bit of cr0 to 1
-        mov eax, cr0
-        or eax, 1
-        mov cr0, eax
-        jmp CODE_SEGMENT : start_protected_mode
+    ; Print message before switching
+    mov si, msg_stage2
+    call print_string
 
-    %include "src/gdt.asm"
+    ; Load GDT
+    call gdt_start
+    lgdt [gdt_descriptor]
+
+    ; Switch to protected mode
+    mov eax, cr0
+    or al, 1              ; Set PE bit
+    mov cr0, eax
+    jmp CODE_SEGMENT:start_protected_mode
+
+    msg_stage2 db "Stage2: Switching to protected mode...", 13, 10, 0
 
     times 510 - ($ - $$) db 0
 
