@@ -1,10 +1,7 @@
-# Makefile for bootloader build on Windows (PowerShell + NASM)
-# Folders: src/ for code, build/ for output
-
 ASM = nasm
 ASMFLAGS = -f bin
 
-SRC_FILE = src/main.asm
+SRC_DIR = src
 OUT_DIR = build
 
 BOOTLOADER = $(OUT_DIR)/bootloader.bin
@@ -13,21 +10,18 @@ DISK      = $(OUT_DIR)/disk.img
 
 all: $(DISK)
 
-# Step 1: Assemble bootloader to build/bootloader.bin
-$(BOOTLOADER): $(SRC_FILE)
-	$(ASM) $(ASMFLAGS) $(SRC_FILE) -o $(BOOTLOADER)
+# Compile stage 1
+$(BOOTLOADER): $(SRC_DIR)/main.asm
+	$(ASM) $(ASMFLAGS) $(SRC_DIR)/main.asm -o $(BOOTLOADER)
 
-# Step 2: Create 512-byte empty stage2.bin
-$(STAGE2):
-	powershell -Command "$$zeros = [byte[]]::new(512); [System.IO.File]::WriteAllBytes('$(STAGE2)', $$zeros)"
+# Compile stage 2
+$(STAGE2): $(SRC_DIR)/stage2.asm
+	$(ASM) $(ASMFLAGS) $(SRC_DIR)/stage2.asm -o $(STAGE2)
 
-# Step 3: Combine bootloader + stage2 into disk.img
+# Combine bootloader + stage2 into disk.img (PowerShell-friendly)
 $(DISK): $(BOOTLOADER) $(STAGE2)
-	powershell -Command \
-		"$$boot = [System.IO.File]::ReadAllBytes('$(BOOTLOADER)');" \
-		"$$stage2 = [System.IO.File]::ReadAllBytes('$(STAGE2)');" \
-		"[System.IO.File]::WriteAllBytes('$(DISK)', $$boot + $$stage2)"
+	powershell -Command "Get-Content $(BOOTLOADER), $(STAGE2) -Encoding Byte -ReadCount 0 | Set-Content $(DISK) -Encoding Byte"
 
-# Clean all outputs from build/
+# Clean build artifacts
 clean:
-	del /Q $(OUT_DIR)\*.bin $(OUT_DIR)\*.img 2> NUL
+	del /q $(OUT_DIR)\*.bin 2>nul || exit 0
