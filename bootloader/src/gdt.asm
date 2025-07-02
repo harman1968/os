@@ -14,11 +14,13 @@ gdt_start:
         dw 0    ; 16 bit
         db 0    ; 8 bit
         ; next 8 bit for access setting
+        ; 0x9a = 1001 1010
         ; (4 bit for 1-bit present, 2-bit privillage, 1-bit type - 4 bit for type flag)
-        db 10011010
+        db 0x9a
         ; next 8 bit divide into two part
+        ; cf = 11001111
         ; (4 bit for other flag - 4 bit for limit)
-        db 11001111
+        db 0xcf
         ; last 8 bit base
         db 0
     data_descriptor:
@@ -27,8 +29,10 @@ gdt_start:
         dw 0
         db 0
         ; in this type flag are different
-        db 10010010
-        db 11001111
+        ; 92 = 10010010
+        db 0x92
+        ; cf = 11001111
+        db cf
         db 0
     gdt_end:
 
