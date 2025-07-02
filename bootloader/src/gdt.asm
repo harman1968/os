@@ -32,7 +32,7 @@ gdt_start:
         ; 92 = 10010010
         db 0x92
         ; cf = 11001111
-        db cf
+        db 0xcf
         db 0
     gdt_end:
 
