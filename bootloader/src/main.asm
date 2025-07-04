@@ -1,34 +1,29 @@
 [bits 16]
-[org 0x7C00]  ; BIOS loads bootloader to this address
+[org 0x7C00]
 
-main:
-        cli
-        ; Segment Setup
-            xor ax, ax
-            mov ds, ax
-            mov es, ax
-        ; Stack Setup
-            mov ax, 0x8000
-            mov ss, ax
-            mov sp, 0xFFFF
-        sti
+start:
+    cli
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
 
-        ; Print startup message
-            mov si, msg
-            call print_string
+    ; Setup stack
+    mov ax, 0x8000
+    mov ss, ax
+    mov sp, 0xFFFF
+    sti
 
-        ; call disk loader
-            call disk_loader
+    ; Load stage2 from disk (sector 2 to 0x8000:0000)
+    call disk_loader
 
-    hang:
-        jmp hang
+    jmp 0x000:0x8000
 
-; Files that are included
-    %include "src/print_string.asm"
-    %include "src/disk_loader.asm"
+; ------------------------
+; Print routine and disk loader
+%include "src\print_string.asm"
+%include "src\disk_loader.asm"
 
-; Messages
-    msg       db "Stack and segment both are setup.", 13, 10, 0
-
+; ------------------------
+; Boot Signature (ends at exactly 512 bytes)
 times 510 - ($ - $$) db 0
 dw 0xAA55

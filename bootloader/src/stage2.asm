@@ -1,7 +1,19 @@
 [bits 16]
-[org 0x0000]
+[org 0x8000]
 
 start:
+    cli
+        mov ax, 0x8000
+        mov ds, ax
+        mov es, ax
+
+        ; Setup stack
+        mov ax, 0x9000
+        mov ss, ax
+        mov sp, 0xFFFF
+    
+    mov si, msg_hello
+    call print_string
     cli
 
     ; Enable A20 line (Fast A20 method)
@@ -14,15 +26,15 @@ start:
     call print_string
 
     ; Load GDT
-    call gdt_start
     lgdt [gdt_descriptor]
 
     ; Switch to protected mode
     mov eax, cr0
-    or al, 1              ; Set PE bit
+    or eax, 1              ; Set PE bit
     mov cr0, eax
     jmp CODE_SEGMENT:start_protected_mode
 
+    msg_hello db "Hello from stage2!", 13, 10, 0
     msg_stage2 db "Stage2: Switching to protected mode...", 13, 10, 0
 
     times 510 - ($ - $$) db 0
@@ -43,7 +55,7 @@ start_protected_mode:
     mov ss, ax
 
     ; Set up stack
-    mov esp, 0x7C00
+    mov esp, 0x9000
 
     ; Write 'P' on screen (0x0F = white on black)
     mov word [0xB8000], 0x0F50
