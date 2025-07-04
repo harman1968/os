@@ -3,7 +3,7 @@
 
 start:
     cli
-        mov ax, 0x8000
+        xor ax, ax
         mov ds, ax
         mov es, ax
 
