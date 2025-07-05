@@ -1,6 +1,6 @@
 disk_loader:
 
-        mov ax, 0x8000        ; Set segment where data will be loaded
+        mov ax, 0x7e00        ; Set segment where data will be loaded
         mov es, ax
         xor bx, bx            ; Offset = 0
 
