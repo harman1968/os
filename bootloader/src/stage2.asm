@@ -14,7 +14,7 @@ start:
     
     mov si, msg_hello
     call print_string
-    cli
+
 
     ; Enable A20 line (Fast A20 method)
     in al, 0x92
