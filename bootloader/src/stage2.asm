@@ -1,5 +1,5 @@
 [bits 16]
-[org 0x8000]
+[org 0x7e00]
 
 start:
     cli
@@ -8,9 +8,9 @@ start:
         mov es, ax
 
         ; Setup stack
-        mov ax, 0x9000
+        mov ax, 0x8000
         mov ss, ax
-        mov sp, 0xFFFF
+        mov sp, 0x8100
     
     mov si, msg_hello
     call print_string
