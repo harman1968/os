@@ -10,7 +10,7 @@ start:
     ; Setup stack
     mov ax, 0x8000
     mov ss, ax
-    mov sp, 0xFFFF
+    mov sp, 0x8100
     sti
 
     ; Load stage2 from disk (sector 2 to 0x8000:0000)
