@@ -16,7 +16,7 @@ start:
     ; Load stage2 from disk (sector 2 to 0x8000:0000)
     call disk_loader
 
-    jmp 0x000:0x8000
+    jmp 0x000:0x7e00
 
 ; ------------------------
 ; Print routine and disk loader
