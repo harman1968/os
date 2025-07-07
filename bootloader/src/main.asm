@@ -1,29 +1,31 @@
 [bits 16]
-[org 0x7C00]
+[org 0x7c00]
 
 start:
     cli
     xor ax, ax
     mov ds, ax
     mov es, ax
-
-    ; Setup stack
     mov ax, 0x8000
     mov ss, ax
     mov sp, 0x8100
-    sti
 
-    ; Load stage2 from disk (sector 2 to 0x8000:0000)
-    call disk_loader
+    ; Print "OK"
+    mov si, msg_ok
+    call print_string
 
-    jmp 0x000:0x7e00
+    ; Setup GDT + switch to protected mode
+    call setup_gdt_and_enter_pm
 
-; ------------------------
-; Print routine and disk loader
-%include "src\print_string.asm"
-%include "src\disk_loader.asm"
+    ; msg
+    msg_ok db 'OK', 0
 
-; ------------------------
-; Boot Signature (ends at exactly 512 bytes)
+    ; Includes
+    %include "src/print_string.asm"
+    %include "src/gdt.asm"
+
+hang:
+    jmp hang
+
 times 510 - ($ - $$) db 0
 dw 0xAA55

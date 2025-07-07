@@ -1,45 +1,51 @@
+[bits 16]
+
+setup_gdt_and_enter_pm:
+    ; Enable A20
+    in al, 0x92
+    or al, 0x02
+    out 0x92, al
+
+    ; Load GDT
+    lgdt [gdt_descriptor]
+
+    ; Set PE bit in CR0
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
+
+    ; Far jump to 32-bit code
+    jmp far [protected_mode_jump]
+
 gdt_start:
-        null_descriptor:
-            dd 0
-            dd 0
-            ; dd - double word - 4 byte
-            ; in total we set 8 bytes to get entry in gdt
-            ; can also use dq - 8 byte single go
-        
-        code_descriptor:
-            ; limit and base
-            ; there is an sequnece using which we intilize this
-            ; first 16 bit for limit
-            dw 0xffff
-            ; next 24 bit bit for base
-            dw 0    ; 16 bit
-            db 0    ; 8 bit
-            ; next 8 bit for access setting
-            ; 0x9a = 1001 1010
-            ; (4 bit for 1-bit present, 2-bit privillage, 1-bit type - 4 bit for type flag)
-            db 0x9a
-            ; next 8 bit divide into two part
-            ; cf = 11001111
-            ; (4 bit for other flag - 4 bit for limit)
-            db 0xcf
-            ; last 8 bit base
-            db 0
-        data_descriptor:
-            ; same as code descriptor
-            dw 0xffff
-            dw 0
-            db 0
-            ; in this type flag are different
-            ; 92 = 10010010
-            db 0x92
-            ; cf = 11001111
-            db 0xcf
-            db 0
+    dq 0  ; Null descriptor
+
+    ; Code segment
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 0x9A
+    db 0xCF
+    db 0x00
+
+    ; Data segment
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 0x92
+    db 0xCF
+    db 0x00
 gdt_end:
 
 gdt_descriptor:
-    dw gdt_end - gdt_start - 1      ; size
-    dd gdt_start                    ; start
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
 
-CODE_SEGMENT equ code_descriptor - gdt_start
-DATA_SEGMENT equ data_descriptor - gdt_start
+CODE_SEGMENT equ 0x08
+DATA_SEGMENT equ 0x10
+
+protected_mode_jump:
+    dw start_protected_mode
+    dw CODE_SEGMENT
+
+%include "src/protected32.asm"
